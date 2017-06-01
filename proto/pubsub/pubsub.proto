@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package pubsub;
+
+service PubSub {
+
+    /*
+    подписаться на обновление топика
+    метод возращает стрим данных
+    данные приходит из стрима клиентам , когда сервер узнает о обновлении этого топика
+    например:
+
+    stream := client.Subscribe("topic")
+    go func () {
+       client.Publish("topic",[]byte(`new data`))
+    }()
+
+    if stream.Recv() != []byte(`new data`) {
+       println(`ERROR`)
+    }
+
+    */
+    rpc Subscribe(Topic) returns (stream Data) {};
+
+/*
+ для множественных подписок
+
+   subscribe := client.Subscriber()
+
+   subscribe.Send("topic1")
+   subscribe.Send("topic2")
+
+   go func () {
+      client.Publish("topic1",[]byte(`new data1`))
+      client.Publish("topic2",[]byte(`new data2`))
+   }()
+
+
+
+   if subscribe.Recv().(*Data) != &Data{
+       Topic: "topic1"
+       Payload: []byte(`new data1`)
+   } {
+      println(`ERROR`)
+   }
+
+   if subscribe.Recv() != []byte(`new data2`) {
+           println(`ERROR`)
+    }
+
+    subscribe.Send("topic3")
+
+    go func () {
+        client.Publish("topic3",[]byte(`new data3`))
+    }()
+
+    if subscribe.Recv() != []byte(`new data3`) {
+           println(`ERROR`)
+    }
+
+*/
+    //rpc Subscriber(stream Topic) returns { stream Data };
+
+    rpc Publish(Data) returns (Answer) {};
+
+    //rpc Publisher(stream Data) returns (stream Answer) {};
+}
+
+message Topic {
+    string Name = 1;
+}
+
+message Data {
+    string Topic = 1;
+    bytes Payload = 2;
+}
+
+message Answer {
+    int32 Subsriptions= 1;
+}
