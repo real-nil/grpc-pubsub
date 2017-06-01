@@ -59,7 +59,12 @@ func main() {
 		}
 	}
 	for {
+		if *count == 0 {
+			break
+		}
+
 		Q <- job
+		*count--
 	}
 }
 
