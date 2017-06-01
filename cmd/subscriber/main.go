@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	pubsubAddr = flag.String(`pubsub`, ``, `set pubsub address`)
-	topic      = flag.String(`topic`, ``, `set topic for subscribe`)
-	timeout    = flag.Duration(`timeout`, 10*time.Second, `set how log do it, other side of count`)
+	pubsubAddr = flag.String(`pubsub`, `:3456`, `set pubsub address`)
+	topic      = flag.String(`topic`, `hellogrpc`, `set topic for subscribe`)
+	timeout    = flag.Duration(`timeout`, 1*time.Minute, `set how log do it, other side of count`)
 	parallel   = flag.Int(`parallel`, 16, `set parallel subscribers`)
 )
 
@@ -69,7 +69,7 @@ func main() {
 				return
 			}
 
-			atomic.AddInt64(&counter, 1)
+			println(`recv`, atomic.AddInt64(&counter, 1))
 		}
 	}
 	for {

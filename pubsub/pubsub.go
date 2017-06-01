@@ -16,7 +16,7 @@ type server struct {
 	pubsubClinet    map[string][]Sender
 }
 
-func New() *server {
+func New() ppubsub.PubSubServer {
 	return &server{
 		lockForPubsuber: &sync.RWMutex{},
 		pubsubClinet:    make(map[string][]Sender, 0),
@@ -30,7 +30,7 @@ func New() *server {
 
 func (s *server) Subscribe(top *ppubsub.Topic, stream ppubsub.PubSub_SubscribeServer) error {
 	grpclog.Printf("start subscribe for topic %s", top.Name)
-	//c := stream.Context()
+	ctx := stream.Context()
 	s.lockForPubsuber.Lock()
 	s.pubsubClinet[top.Name] = append(s.pubsubClinet[top.Name], stream)
 	s.lockForPubsuber.Unlock()
@@ -41,10 +41,15 @@ func (s *server) Subscribe(top *ppubsub.Topic, stream ppubsub.PubSub_SubscribeSe
 	//	return errors.New("ololo")
 	//}
 
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+
 	return nil
 }
 
-func (s *server) Publish(ctx *context.Context, data *ppubsub.Data) (*ppubsub.Answer, error) {
+func (s *server) Publish(ctx context.Context, data *ppubsub.Data) (*ppubsub.Answer, error) {
 	var (
 		senders []Sender
 		ok      bool

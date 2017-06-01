@@ -8,6 +8,7 @@ import (
 	"net"
 
 	"github.com/real-nil/grpc-pubsub/proto/pubsub"
+	srvpubsub "github.com/real-nil/grpc-pubsub/pubsub"
 )
 
 var (
@@ -23,7 +24,7 @@ func main() {
 	}
 	s := grpc.NewServer()
 
-	pubsub.RegisterPubSubServer(s, nil)
+	pubsub.RegisterPubSubServer(s, srvpubsub.New())
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

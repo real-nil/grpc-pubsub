@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	pubsubAddr = flag.String(`pubsub`, ``, `set pubsub address`)
-	topic      = flag.String(`topic`, ``, `set topic for publications`)
-	msg        = flag.String(`msg`, ``, `set msg for publish`)
+	pubsubAddr = flag.String(`pubsub`, `:3456`, `set pubsub address`)
+	topic      = flag.String(`topic`, `hellogrpc`, `set topic for publications`)
+	msg        = flag.String(`msg`, `aloxa`, `set msg for publish`)
 	count      = flag.Int(`count`, 0, `set count for send message if 0 = infinity`)
 	timeout    = flag.Duration(`timeout`, 10*time.Second, `set how log do it, other side of count`)
 	parallel   = flag.Int(`parallel`, 16, `set parallel process`)
@@ -57,15 +57,24 @@ func main() {
 		if err != nil {
 			log.Printf(`can't publish: %s`, err)
 		}
+		println(`publish++`)
 	}
-	for {
-		if *count == 0 {
-			break
-		}
 
-		Q <- job
-		*count--
+	if *count > 0 {
+		for {
+			if *count == 0 {
+				break
+			}
+
+			Q <- job
+			*count--
+		}
+	} else {
+		for {
+			Q <- job
+		}
 	}
+
 }
 
 func runWorkers(ctx context.Context, size int) {
